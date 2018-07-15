@@ -8,4 +8,5 @@ import com.abconline.models.order.Order;
 
 public interface OrdersRepository extends JpaRepository<Order, Long> {
   List<Order> findByCustomerId(Long customerId);
+  void deleteByCustomerId(Long customerId);
 }

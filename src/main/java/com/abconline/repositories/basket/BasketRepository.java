@@ -6,4 +6,6 @@ import com.abconline.models.basket.Basket;
 
 public interface BasketRepository extends JpaRepository<Basket, Long> {
 
+  void deleteByCustomerId(Long customer);
+
 }
