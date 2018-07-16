@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abconline.daos.customer.CustomerDao;
+import com.abconline.daos.order.OrderItemDao;
+import com.abconline.daos.order.OrdersDao;
 import com.abconline.models.order.Order;
 import com.abconline.models.order.OrderItem;
-import com.abconline.repositories.customer.CustomerRepository;
-import com.abconline.repositories.order.OrderItemRepository;
-import com.abconline.repositories.order.OrdersRepository;
 import com.abconline.utils.AbcOnlineStrings;
 
 import static com.abconline.utils.AbcOnlineStrings.ORDERS_KEY;
@@ -36,22 +36,22 @@ import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 public class OrdersController {
 
   @Autowired
-  private final OrdersRepository ordersRepository;
+  private final OrdersDao ordersDao;
 
   @Autowired
-  private CustomerRepository customerRepository;
+  private CustomerDao customerDao;
 
   @Autowired
-  private OrderItemRepository orderItemRepository;
+  private OrderItemDao orderItemDao;
 
-  public OrdersController(OrdersRepository ordersRepository) {
-    this.ordersRepository = ordersRepository;
+  public OrdersController(OrdersDao ordersDao) {
+    this.ordersDao = ordersDao;
   }
 
   @PostMapping(value = "/add/{customerId}")
   public ResponseEntity<?> create(@PathVariable("customerId") long customerId, @RequestBody OrderItem order) {
     // does the customerId exist?
-    if (!customerRepository.findById(customerId).isPresent()) {
+    if (!customerDao.findById(customerId).isPresent()) {
       return new ResponseEntity<>(String.format("Unable to proceed due to unknown customerId value %1$s.", customerId), HttpStatus.UNAUTHORIZED);
     }
 
@@ -59,9 +59,9 @@ public class OrdersController {
       LocalDate now = LocalDate.now();
 
       order.setDateOfPurchase(now);
-      OrderItem savedOrderItem = orderItemRepository.save(order);
+      OrderItem savedOrderItem = orderItemDao.save(order);
 
-      Order savedOrderInfo = ordersRepository.save(new Order(savedOrderItem.getItemId(), customerId, now));
+      Order savedOrderInfo = ordersDao.save(new Order(savedOrderItem.getItemId(), customerId, now));
 
       Map<String, String> responsePayload = new HashMap<>();
       responsePayload.put(AbcOnlineStrings.STATUS_KEY, SUCCESS_KEY);
@@ -77,20 +77,20 @@ public class OrdersController {
 
   @GetMapping
   public ResponseEntity<List<Order>> list() {
-    if (ordersRepository.findAll().isEmpty()) {
+    if (ordersDao.findAll().isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    return new ResponseEntity<>(new ArrayList<>(ordersRepository.findAll()), HttpStatus.OK);
+    return new ResponseEntity<>(new ArrayList<>(ordersDao.findAll()), HttpStatus.OK);
   }
 
   @GetMapping(value = "{orderId}")
   public ResponseEntity<?> getOrder(@PathVariable("orderId") long orderId) {
-    if (ordersRepository.findById(orderId).isPresent()) {
-      Order anOrder = ordersRepository.getOne(orderId);
+    if (ordersDao.findById(orderId).isPresent()) {
+      Order anOrder = ordersDao.getOne(orderId);
 
       Map<String, List<OrderItem>> mappedOrderItems = new HashMap<>();
-      mappedOrderItems.put(ORDERS_KEY, new ArrayList<>(orderItemRepository.findAllById(Collections
+      mappedOrderItems.put(ORDERS_KEY, new ArrayList<>(orderItemDao.findAllById(Collections
           .singleton(anOrder.getOrderItemsItemId()))));
 
       return new ResponseEntity<>(mappedOrderItems, HttpStatus.OK);
@@ -101,7 +101,7 @@ public class OrdersController {
 
   @PostMapping(value = "{orderId}/pay")
   public ResponseEntity<?> processPayment(@PathVariable("orderId") long orderId) {
-    if (ordersRepository.findById(orderId).isPresent()) {
+    if (ordersDao.findById(orderId).isPresent()) {
       /*
       This is just for demo -- we can plug this into a payment platform like stripe.
       For now we just return a 200
@@ -120,14 +120,14 @@ public class OrdersController {
   @GetMapping(value = "/customer/{customerId}")
   public ResponseEntity<?> customerOrders(@PathVariable("customerId") long customerId) {
     // does customerId have any orders?
-    if (!ordersRepository.findByCustomerId(customerId).isEmpty()) {
-      List<Order> customerOrders = new ArrayList<>(ordersRepository.findByCustomerId(customerId));
+    if (!ordersDao.findByCustomerId(customerId).isEmpty()) {
+      List<Order> customerOrders = new ArrayList<>(ordersDao.findByCustomerId(customerId));
 
       List<Long> orderItemsIds = customerOrders.stream().map(Order::getOrderItemsItemId)
           .collect(Collectors.toList());
 
 
-      List<OrderItem> orderItems = orderItemRepository.findAllById(orderItemsIds);
+      List<OrderItem> orderItems = orderItemDao.findAllById(orderItemsIds);
 
       Map<String, List<OrderItem>> mappedCustomerOrders = new HashMap<>();
       mappedCustomerOrders.put("orders", orderItems);

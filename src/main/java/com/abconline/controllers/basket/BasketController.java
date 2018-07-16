@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abconline.daos.basket.BasketDao;
+import com.abconline.daos.customer.CustomerDao;
+import com.abconline.daos.order.OrderItemDao;
 import com.abconline.models.basket.Basket;
 import com.abconline.models.order.OrderItem;
-import com.abconline.repositories.basket.BasketRepository;
-import com.abconline.repositories.customer.CustomerRepository;
-import com.abconline.repositories.order.OrderItemRepository;
 import com.abconline.utils.AbcOnlineStrings;
 
 import static com.abconline.utils.AbcOnlineStrings.RESPONSE_MESSAGE_KEY;
@@ -34,23 +34,23 @@ import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 public class BasketController {
 
   @Autowired
-  private final BasketRepository basketRepository;
+  private final BasketDao basketDao;
 
   @Autowired
-  private CustomerRepository customerRepository;
+  private CustomerDao customerDao;
 
   @Autowired
-  private OrderItemRepository orderItemRepository;
+  private OrderItemDao orderItemDao;
 
-  public BasketController(BasketRepository basketRepository) {
-    this.basketRepository = basketRepository;
+  public BasketController(BasketDao basketDao) {
+    this.basketDao = basketDao;
   }
 
   @PostMapping(value = "/add/{customerId}")
   public ResponseEntity<?> create(@PathVariable("customerId") long customerId,
       @RequestBody OrderItem item) {
 
-    if (!customerRepository.findById(customerId).isPresent()) {
+    if (!customerDao.findById(customerId).isPresent()) {
       return new ResponseEntity<>(String.format("Unable to proceed due to unknown customerId value %1$s.", customerId), HttpStatus.UNAUTHORIZED);
     }
 
@@ -58,9 +58,9 @@ public class BasketController {
       LocalDate now = LocalDate.now();
 
       item.setDateOfPurchase(now);
-      OrderItem savedOrderItem = orderItemRepository.save(item);
+      OrderItem savedOrderItem = orderItemDao.save(item);
 
-      Basket savedBasket = basketRepository.save(new Basket(now, customerId, savedOrderItem.getItemId()));
+      Basket savedBasket = basketDao.save(new Basket(now, customerId, savedOrderItem.getItemId()));
 
       Map<String, String> responsePayload = new HashMap<>();
       responsePayload.put(AbcOnlineStrings.STATUS_KEY, SUCCESS_KEY);
@@ -79,25 +79,25 @@ public class BasketController {
       @PathVariable("customerId") long customerId) {
 
     // confirm basketId and cus
-    if (!basketRepository.existsById(basketId)) {
+    if (!basketDao.existsById(basketId)) {
       return new ResponseEntity<>(String.format("Basket with id %1$s does not exist.", basketId),
           HttpStatus.NOT_FOUND);
     }
 
-    if (!customerRepository.existsById(customerId)) {
+    if (!customerDao.existsById(customerId)) {
       return new ResponseEntity<>(String.format("No customer with id %1$s exists.", customerId),
           HttpStatus.NOT_FOUND);
     }
 
-    Basket basketInfo = basketRepository.getOne(basketId);
+    Basket basketInfo = basketDao.getOne(basketId);
 
-    if (!orderItemRepository.existsById(basketInfo.getOrderItemsItemId())) {
+    if (!orderItemDao.existsById(basketInfo.getOrderItemsItemId())) {
       return new ResponseEntity<>(String.format("No item(s) exists for basket %1$s.", basketId),
           HttpStatus.NOT_FOUND);
 
     } else {
 
-      orderItemRepository.deleteById(basketInfo.getOrderItemsItemId());
+      orderItemDao.deleteById(basketInfo.getOrderItemsItemId());
       return new ResponseEntity<>(String.format("Successfully deleted item %1$s from basket %2$s",
           basketInfo.getOrderItemsItemId(), basketId), HttpStatus.OK);
     }
@@ -105,20 +105,20 @@ public class BasketController {
 
   @GetMapping
   public ResponseEntity<List<Basket>> list() {
-    if (basketRepository.findAll().isEmpty()) {
+    if (basketDao.findAll().isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    return new ResponseEntity<>(new ArrayList<>(basketRepository.findAll()), HttpStatus.OK);
+    return new ResponseEntity<>(new ArrayList<>(basketDao.findAll()), HttpStatus.OK);
   }
 
   @PutMapping(value = "/{basketId}/add")
   public ResponseEntity<?> addToBasket(@PathVariable("basketId") long basketId, @RequestBody OrderItem item) {
-    if (basketRepository.findById(basketId).isPresent()) {
-      Basket existingBasket = basketRepository.getOne(basketId);
+    if (basketDao.findById(basketId).isPresent()) {
+      Basket existingBasket = basketDao.getOne(basketId);
       existingBasket.setUpdatedAt(LocalDate.now());
 
-      basketRepository.save(existingBasket);
+      basketDao.save(existingBasket);
       return new ResponseEntity<>(existingBasket, HttpStatus.OK);
     }
 
@@ -131,10 +131,10 @@ public class BasketController {
       @RequestBody OrderItem item) {
 
     // brand new basket?
-    if (basketRepository.findById(basketId).isPresent()) {
+    if (basketDao.findById(basketId).isPresent()) {
 
       // logged-in or valid Customer?
-      if (customerRepository.findById(customerId).isPresent()) {
+      if (customerDao.findById(customerId).isPresent()) {
 
       }
 
@@ -146,12 +146,12 @@ public class BasketController {
 
   @DeleteMapping(value = "/{id}")
   public ResponseEntity<?> deleteFromBasket(@PathVariable("id") long id, @RequestBody OrderItem item) {
-    if (basketRepository.findById(id).isPresent()) {
-      Basket existingBasket = basketRepository.getOne(id);
+    if (basketDao.findById(id).isPresent()) {
+      Basket existingBasket = basketDao.getOne(id);
 
       existingBasket.setUpdatedAt(LocalDate.now());
 
-      basketRepository.save(existingBasket);
+      basketDao.save(existingBasket);
       return new ResponseEntity<>(HttpStatus.OK);
     }
 
