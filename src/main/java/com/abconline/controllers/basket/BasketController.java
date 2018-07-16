@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,17 +32,15 @@ import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 @RequestMapping(value = "/baskets")
 public class BasketController {
 
-  @Autowired
   private final BasketDao basketDao;
+  private final CustomerDao customerDao;
+  private final OrderItemDao orderItemDao;
 
-  @Autowired
-  private CustomerDao customerDao;
-
-  @Autowired
-  private OrderItemDao orderItemDao;
-
-  public BasketController(BasketDao basketDao) {
+  public BasketController(BasketDao basketDao, CustomerDao customerDao,
+      OrderItemDao orderItemDao) {
     this.basketDao = basketDao;
+    this.customerDao = customerDao;
+    this.orderItemDao = orderItemDao;
   }
 
   @PostMapping(value = "/add/{customerId}")
