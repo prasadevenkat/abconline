@@ -71,7 +71,7 @@ public class BasketController {
     }
 
     return new ResponseEntity<>("Unable to create Cart due to empty request payload",
-        HttpStatus.PRECONDITION_FAILED);
+        HttpStatus.BAD_REQUEST);
   }
 
   @DeleteMapping(value = "/{basketId}/{customerId}")
