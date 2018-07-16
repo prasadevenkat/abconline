@@ -45,7 +45,13 @@ public class Customer {
 
   public Customer() {}
 
-  // do we need a CustomerBuilder ???
+  /**
+   *
+   * @param firstName     first name string
+   * @param lastName      last name
+   * @param emailAddress  customer email address
+   * @param dateOfBirth   customers DoB
+   */
   public Customer(String firstName, String lastName, String emailAddress,
       LocalDate dateOfBirth) {
     this.firstName = firstName;

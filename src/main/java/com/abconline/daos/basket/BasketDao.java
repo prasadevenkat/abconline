@@ -1,10 +1,10 @@
-package com.abconline.repositories.basket;
+package com.abconline.daos.basket;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.abconline.models.basket.Basket;
 
-public interface BasketRepository extends JpaRepository<Basket, Long> {
+public interface BasketDao extends JpaRepository<Basket, Long> {
 
   void deleteByCustomerId(Long customer);
 
