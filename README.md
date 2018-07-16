@@ -13,7 +13,7 @@
 - Change directory into cloned project directory
 - Run `/gradlew bootRun` to start application. Application started at http://localhost:8083/api
 
-![alt text][abcOnlineHome.png]
+![alt text](abcOnlineHome.png)
 
 ### RESTful resources
 
