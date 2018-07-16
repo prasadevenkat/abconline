@@ -16,3 +16,35 @@
 ![alt text][abcOnlineHome.png]
 
 ### RESTful resources
+
+#### Case Scenarios
+
+1. Create a simple order management system for ABC online shop, where customer should be able to purchase items online
+```http request
+POST /api/orders/{orderId}/pay
+```
+
+2. The System should allow user to add items to a basket
+```http request
+POST /api/baskets/add/{customerId}
+```
+
+3. The System should allow user to delete items from a basket
+```http request
+DELETE /api/baskets/{basketId}/{customerId}
+```
+
+4. The System should allow user to create a new order
+```http request
+POST /api/orders/add/{customerId}
+```
+
+5. The System should be able to list all orders for a customer
+```http request
+GET /api/orders/{customerId}
+```
+
+6. The System should be able to fetch a specific order 
+```http request
+GET /api/orders/{ordersId}
+```
