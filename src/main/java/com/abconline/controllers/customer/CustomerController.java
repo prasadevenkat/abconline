@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,17 +28,15 @@ import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 @RequestMapping(value = "/customers")
 public class CustomerController {
 
-  @Autowired
-  private CustomerDao customerDao;
+  private final CustomerDao customerDao;
+  private final BasketDao basketDao;
+  private final OrdersDao ordersDao;
 
-  @Autowired
-  private BasketDao basketDao;
-
-  @Autowired
-  private OrdersDao ordersDao;
-
-  public CustomerController(CustomerDao customerDao) {
+  public CustomerController(CustomerDao customerDao, BasketDao basketDao,
+      OrdersDao ordersDao) {
     this.customerDao = customerDao;
+    this.basketDao = basketDao;
+    this.ordersDao = ordersDao;
   }
 
   @GetMapping

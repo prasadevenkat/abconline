@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,17 +34,15 @@ import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 @RequestMapping(value = "/orders")
 public class OrdersController {
 
-  @Autowired
   private final OrdersDao ordersDao;
+  private final CustomerDao customerDao;
+  private final OrderItemDao orderItemDao;
 
-  @Autowired
-  private CustomerDao customerDao;
-
-  @Autowired
-  private OrderItemDao orderItemDao;
-
-  public OrdersController(OrdersDao ordersDao) {
+  public OrdersController(OrdersDao ordersDao, CustomerDao customerDao,
+      OrderItemDao orderItemDao) {
     this.ordersDao = ordersDao;
+    this.customerDao = customerDao;
+    this.orderItemDao = orderItemDao;
   }
 
   @PostMapping(value = "/add/{customerId}")
