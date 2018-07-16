@@ -11,7 +11,7 @@
 - Clone repo from [here](https://github.com/Gogetter/abconline.git);
 - Run sql script files located in  src/main/resources/sql_scripts, beginning with create_tables.sql;
 - Change directory into cloned project directory
-- Run `/gradlew bootRun` to start application. Application started at http://localhost:8083/api
+- Run `./gradlew bootRun` to start application. Application started at http://localhost:8083/api
 
 ![alt text](abcOnlineHome.png)
 
