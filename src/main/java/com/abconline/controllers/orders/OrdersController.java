@@ -72,7 +72,7 @@ public class OrdersController {
     }
 
     return new ResponseEntity<>("Unable to create an Order due to empty request payload",
-        HttpStatus.PRECONDITION_FAILED);
+        HttpStatus.BAD_REQUEST);
   }
 
   @GetMapping

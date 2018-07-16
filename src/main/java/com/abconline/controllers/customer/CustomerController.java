@@ -30,7 +30,7 @@ import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 public class CustomerController {
 
   @Autowired
-  private final CustomerDao customerDao;
+  private CustomerDao customerDao;
 
   @Autowired
   private BasketDao basketDao;
@@ -61,7 +61,7 @@ public class CustomerController {
     }
 
     return new ResponseEntity<>("Unable to create Customer due to empty request payload",
-        HttpStatus.PRECONDITION_FAILED);
+        HttpStatus.BAD_REQUEST);
   }
 
   @GetMapping(value = "/{id}")
