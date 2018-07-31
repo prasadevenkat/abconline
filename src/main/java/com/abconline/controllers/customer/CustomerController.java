@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.abconline.daos.basket.BasketDao;
 import com.abconline.daos.customer.CustomerDao;
-import com.abconline.daos.order.OrdersDao;
 import com.abconline.models.customer.Customer;
 
 import static com.abconline.utils.AbcOnlineStrings.RESPONSE_MESSAGE_KEY;
@@ -25,19 +24,17 @@ import static com.abconline.utils.AbcOnlineStrings.STATUS_KEY;
 import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 
 @RestController
-@RequestMapping(value = "/customers")
+@RequestMapping(value = "/customers/")
 public class CustomerController {
 
   private final CustomerDao customerDao;
-  private final BasketDao basketDao;
-  private final OrdersDao ordersDao;
 
-  public CustomerController(CustomerDao customerDao, BasketDao basketDao,
-      OrdersDao ordersDao) {
+  public CustomerController(CustomerDao customerDao) {
     this.customerDao = customerDao;
-    this.basketDao = basketDao;
-    this.ordersDao = ordersDao;
   }
+
+  @Autowired
+
 
   @GetMapping
   public ResponseEntity<List<Customer>> list() {
@@ -73,12 +70,6 @@ public class CustomerController {
   @DeleteMapping(value = "/{customerId}")
   public ResponseEntity<?> deleteCustomer(@PathVariable("customerId") long customerId) {
     if (customerDao.existsById(customerId)) {
-      //delete customers basket
-      basketDao.deleteByCustomerId(customerId);
-
-      //delete customers orders
-      ordersDao.deleteByCustomerId(customerId);
-
       //now delete customer
       customerDao.deleteById(customerId);
 
