@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -25,7 +26,10 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 @WebAppConfiguration
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {AbconlineApplication.class})
+@SpringBootTest(
+    webEnvironment = WebEnvironment.MOCK,
+    classes = {AbconlineApplication.class}
+)
 public class CustomerControllerTest extends BaseControllerTest {
 
   private Customer customer;
@@ -51,7 +55,7 @@ public class CustomerControllerTest extends BaseControllerTest {
   public void shouldCreateValidCustomerAndReturnStatus() throws Exception {
     Customer customer = new Customer("Oliver", "Tester", "test@tester.com", LocalDate.now().minusYears(40));
 
-    mockMvc.perform(post("/api/customers/")
+    mockMvc.perform(post("/customers")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json(customer)))
         .andExpect(status().isCreated())
