@@ -24,17 +24,15 @@ import static com.abconline.utils.AbcOnlineStrings.STATUS_KEY;
 import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 
 @RestController
-@RequestMapping(value = "/customers/")
+@RequestMapping(value = "/customers")
 public class CustomerController {
 
   private final CustomerDao customerDao;
 
+  @Autowired
   public CustomerController(CustomerDao customerDao) {
     this.customerDao = customerDao;
   }
-
-  @Autowired
-
 
   @GetMapping
   public ResponseEntity<List<Customer>> list() {
