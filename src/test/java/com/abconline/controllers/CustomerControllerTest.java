@@ -1,7 +1,8 @@
 package com.abconline.controllers;
 
-import java.time.LocalDate;
-
+import com.abconline.AbconlineApplication;
+import com.abconline.daos.customer.CustomerDao;
+import com.abconline.models.customer.Customer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,9 +15,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.abconline.AbconlineApplication;
-import com.abconline.daos.customer.CustomerDao;
-import com.abconline.models.customer.Customer;
+import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -52,7 +51,7 @@ public class CustomerControllerTest extends BaseControllerTest {
   }
 
   @Test
-  public void shouldCreateValidCustomerAndReturnStatus() throws Exception {
+  public void shouldCreateValidCustomerAndReturn201Status() throws Exception {
     Customer customer = new Customer("Oliver", "Tester", "test@tester.com", LocalDate.now().minusYears(40));
 
     mockMvc.perform(post("/customers")
