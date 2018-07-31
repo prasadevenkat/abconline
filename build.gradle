@@ -32,6 +32,9 @@ dependencies {
     compile('org.hibernate:hibernate-core:5.3.2.Final')
     compile('org.hibernate:hibernate-entitymanager:5.3.2.Final')
     compile('org.apache.commons:commons-lang3:3.7')
+
     runtime('mysql:mysql-connector-java')
+    runtime('com.h2database:h2')
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
