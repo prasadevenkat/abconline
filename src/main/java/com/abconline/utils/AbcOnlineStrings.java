@@ -16,4 +16,5 @@ public final class AbcOnlineStrings {
   public static final String RESPONSE_MESSAGE_KEY = "message";
   public static final String STATUS_KEY = "status";
   public static final String SUCCESS_KEY = "success";
+  public static final String EMPTY_PAYLOAD_MESSAGE = "Unable to proceed due to empty request payload.";
 }

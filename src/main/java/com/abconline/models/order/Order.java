@@ -4,15 +4,22 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
-import com.abconline.models.customer.Customer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.abconline.models.customer.Customer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -47,10 +54,14 @@ public class Order {
   public Order() {
   }
 
-  public Order(LocalDate createdOn, LocalDate updatedOn, List<OrderItem> items, Customer customer) {
+  public Order(LocalDate createdOn, LocalDate updatedOn, List<OrderItem> items) {
     this.createdOn = createdOn;
     this.updatedOn = updatedOn;
     this.items = items;
+  }
+
+  public Order(LocalDate createdOn, LocalDate updatedOn, List<OrderItem> items, Customer customer) {
+    this(createdOn, updatedOn, items);
     this.customer = customer;
   }
 

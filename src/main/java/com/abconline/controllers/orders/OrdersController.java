@@ -1,16 +1,14 @@
 package com.abconline.controllers.orders;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.abconline.daos.customer.CustomerDao;
-import com.abconline.daos.order.OrderItemDao;
 import com.abconline.daos.order.OrdersDao;
 import com.abconline.models.order.Order;
 import com.abconline.models.order.OrderItem;
 import com.abconline.utils.AbcOnlineStrings;
 
+import static com.abconline.utils.AbcOnlineStrings.EMPTY_PAYLOAD_MESSAGE;
 import static com.abconline.utils.AbcOnlineStrings.ORDERS_KEY;
 import static com.abconline.utils.AbcOnlineStrings.RESPONSE_MESSAGE_KEY;
 import static com.abconline.utils.AbcOnlineStrings.STATUS_KEY;
@@ -35,41 +32,35 @@ import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
 public class OrdersController {
 
   private final OrdersDao ordersDao;
-  private final CustomerDao customerDao;
-  private final OrderItemDao orderItemDao;
 
-  public OrdersController(OrdersDao ordersDao, CustomerDao customerDao,
-      OrderItemDao orderItemDao) {
+  public OrdersController(OrdersDao ordersDao) {
     this.ordersDao = ordersDao;
-    this.customerDao = customerDao;
-    this.orderItemDao = orderItemDao;
   }
 
-  @PostMapping(value = "/add/{customerId}")
-  public ResponseEntity<?> create(@PathVariable("customerId") long customerId, @RequestBody OrderItem order) {
-    // does the customerId exist?
-    if (!customerDao.findById(customerId).isPresent()) {
-      return new ResponseEntity<>(String.format("Unable to proceed due to unknown customerId value %1$s.", customerId), HttpStatus.UNAUTHORIZED);
+  @PostMapping
+  public ResponseEntity<?> create(@RequestBody Order order) {
+    if (Objects.isNull(order)) {
+      return new ResponseEntity<>(EMPTY_PAYLOAD_MESSAGE, HttpStatus.BAD_REQUEST);
     }
 
-    if (Objects.nonNull(order)) {
-      LocalDate now = LocalDate.now();
-
-      order.setDateOfPurchase(now);
-      OrderItem savedOrderItem = orderItemDao.save(order);
-
-      Order savedOrderInfo = ordersDao.save(new Order(savedOrderItem.getItemId(), customerId, now));
-
-      Map<String, String> responsePayload = new HashMap<>();
-      responsePayload.put(AbcOnlineStrings.STATUS_KEY, SUCCESS_KEY);
-      responsePayload.put(RESPONSE_MESSAGE_KEY, String.format("Successfully created order %1$s for customer with id %2$s",
-          savedOrderInfo.getId(), customerId));
-
-      return new ResponseEntity<>(responsePayload, HttpStatus.CREATED);
+    if (CollectionUtils.isEmpty(order.getItems())) {
+      return new ResponseEntity<>("Cannot create orders without order items.", HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>("Unable to create an Order due to empty request payload",
-        HttpStatus.BAD_REQUEST);
+    Order savedOrder;
+
+    if (Objects.nonNull(order.getCustomer())) {
+      savedOrder = ordersDao.save(new Order(order.getCreatedOn(), order.getUpdatedOn(), order.getItems()));
+
+    } else {
+      savedOrder = ordersDao.save(new Order(order.getCreatedOn(), order.getUpdatedOn(), order.getItems(), order.getCustomer()));
+    }
+
+    Map<String, String> responsePayload = new HashMap<>();
+    responsePayload.put(AbcOnlineStrings.STATUS_KEY, SUCCESS_KEY);
+    responsePayload.put(RESPONSE_MESSAGE_KEY, String.format("Successfully created order %1$s", savedOrder.getId()));
+
+    return new ResponseEntity<>(responsePayload, HttpStatus.CREATED);
   }
 
   @GetMapping
@@ -87,8 +78,7 @@ public class OrdersController {
       Order anOrder = ordersDao.getOne(orderId);
 
       Map<String, List<OrderItem>> mappedOrderItems = new HashMap<>();
-      mappedOrderItems.put(ORDERS_KEY, new ArrayList<>(orderItemDao.findAllById(Collections
-          .singleton(anOrder.getOrderItemsItemId()))));
+      mappedOrderItems.put(ORDERS_KEY, new ArrayList<>(anOrder.getItems()));
 
       return new ResponseEntity<>(mappedOrderItems, HttpStatus.OK);
     }
@@ -117,17 +107,11 @@ public class OrdersController {
   @GetMapping(value = "/customer/{customerId}")
   public ResponseEntity<?> customerOrders(@PathVariable("customerId") long customerId) {
     // does customerId have any orders?
-    if (!ordersDao.findByCustomerId(customerId).isEmpty()) {
-      List<Order> customerOrders = new ArrayList<>(ordersDao.findByCustomerId(customerId));
-
-      List<Long> orderItemsIds = customerOrders.stream().map(Order::getOrderItemsItemId)
-          .collect(Collectors.toList());
-
-
-      List<OrderItem> orderItems = orderItemDao.findAllById(orderItemsIds);
+    if (Objects.nonNull(ordersDao.findByCustomerId(customerId))) {
+      Order customerOrder = ordersDao.findByCustomerId(customerId);
 
       Map<String, List<OrderItem>> mappedCustomerOrders = new HashMap<>();
-      mappedCustomerOrders.put("orders", orderItems);
+      mappedCustomerOrders.put("orders", customerOrder.getItems());
 
       return new ResponseEntity<>(mappedCustomerOrders, HttpStatus.OK);
     }

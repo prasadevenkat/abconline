@@ -4,13 +4,21 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-import com.abconline.models.basket.Basket;
-import com.abconline.models.order.Order;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.abconline.models.basket.Basket;
+import com.abconline.models.order.Order;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -45,8 +53,8 @@ public class Customer {
   @OneToMany(mappedBy = "customer")
   private List<Order> orders;
 
-  @Column(name = "basket")
-  @OneToOne(mappedBy = "customer")
+  @JoinColumn(name = "basket")
+  @OneToOne(mappedBy = "customerBasket")
   private Basket basket;
 
   public Customer() {}
@@ -97,6 +105,10 @@ public class Customer {
 
   public Basket getBasket() {
     return basket;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 
   @Override
