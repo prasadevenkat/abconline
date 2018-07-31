@@ -1,14 +1,14 @@
 package com.abconline.models.basket;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.abconline.models.customer.Customer;
+import com.abconline.models.order.OrderItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -38,68 +38,72 @@ public class Basket {
   @JsonFormat(shape = Shape.STRING, pattern = "dd-MM-yyyy")
   private LocalDate updatedAt;
 
-  @Column(name = "customer_id")
-  private Long customerId;
+  @Column(name = "order_items")
+  @OneToMany(mappedBy = "basket")
+  private List<OrderItem> orderItems;
 
-  @Column(name = "order_items_item_id")
-  private Long orderItemsItemId;
+  @JsonIgnore
+  @OneToOne
+  private Customer customer;
 
   public Basket() {}
 
-  public Basket(LocalDate createdAt, Long customerId, Long orderItemsItemId) {
+  public Basket(LocalDate createdAt, LocalDate updatedAt, List<OrderItem> orderItems) {
     this.createdAt = createdAt;
-    this.customerId = customerId;
-    this.orderItemsItemId = orderItemsItemId;
-  }
-
-  public LocalDate getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(LocalDate createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public LocalDate getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(LocalDate updatedAt) {
     this.updatedAt = updatedAt;
+    this.orderItems = orderItems;
+  }
+
+  public Basket(LocalDate createdAt, LocalDate updatedAt, List<OrderItem> orderItems, Customer customer) {
+    this(createdAt, updatedAt, orderItems);
+    this.customer = customer;
   }
 
   public Long getId() {
     return id;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public LocalDate getCreatedAt() {
+    return createdAt;
   }
 
-  public Long getCustomerId() {
-    return customerId;
+  public LocalDate getUpdatedAt() {
+    return updatedAt;
   }
 
-  public void setCustomerId(Long customerId) {
-    this.customerId = customerId;
+  public List<OrderItem> getOrderItems() {
+    return orderItems;
   }
 
-  public Long getOrderItemsItemId() {
-    return orderItemsItemId;
+  public Customer getCustomer() {
+    return customer;
   }
 
-  public void setOrderItemsItemId(Long orderItemsItemId) {
-    this.orderItemsItemId = orderItemsItemId;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Basket basket = (Basket) o;
+    return Objects.equals(id, basket.id) &&
+            Objects.equals(createdAt, basket.createdAt) &&
+            Objects.equals(updatedAt, basket.updatedAt) &&
+            Objects.equals(orderItems, basket.orderItems) &&
+            Objects.equals(customer, basket.customer);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, createdAt, updatedAt, orderItems, customer);
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("id", id)
-        .append("createdAt", createdAt)
-        .append("updatedAt", updatedAt)
-        .append("customerId", customerId)
-        .append("orderItemsItemId", orderItemsItemId)
-        .toString();
+            .append("id", id)
+            .append("createdAt", createdAt)
+            .append("updatedAt", updatedAt)
+            .append("orderItems", orderItems)
+            .append("customer", customer)
+            .toString();
   }
 }

@@ -1,15 +1,13 @@
 package com.abconline.models.order;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.abconline.models.customer.Customer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -30,12 +28,6 @@ public class Order {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "order_items_item_id")
-  private Long orderItemsItemId;
-
-  @Column(name = "customers_id")
-  private Long customerId;
-
   @Column(name = "created_on")
   @JsonFormat(shape = Shape.STRING, pattern = "dd-MM-yyyy")
   private LocalDate createdOn;
@@ -44,53 +36,42 @@ public class Order {
   @JsonFormat(shape = Shape.STRING, pattern = "dd-MM-yyyy")
   private LocalDate updatedOn;
 
+  @Column(name = "items")
+  @OneToMany(mappedBy = "order")
+  private List<OrderItem> items;
+
+  @JsonIgnore
+  @ManyToOne
+  private Customer customer;
+
   public Order() {
   }
 
-  public Order(Long orderItemsItemId, Long customerId, LocalDate createdOn) {
-    this.orderItemsItemId = orderItemsItemId;
-    this.customerId = customerId;
+  public Order(LocalDate createdOn, LocalDate updatedOn, List<OrderItem> items, Customer customer) {
     this.createdOn = createdOn;
+    this.updatedOn = updatedOn;
+    this.items = items;
+    this.customer = customer;
   }
 
   public Long getId() {
     return id;
   }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
-
   public LocalDate getCreatedOn() {
     return createdOn;
-  }
-
-  public void setCreatedOn(LocalDate createdOn) {
-    this.createdOn = createdOn;
   }
 
   public LocalDate getUpdatedOn() {
     return updatedOn;
   }
 
-  public void setUpdatedOn(LocalDate updatedOn) {
-    this.updatedOn = updatedOn;
+  public List<OrderItem> getItems() {
+    return items;
   }
 
-  public Long getOrderItemsItemId() {
-    return orderItemsItemId;
-  }
-
-  public void setOrderItemsItemId(Long orderItemsItemId) {
-    this.orderItemsItemId = orderItemsItemId;
-  }
-
-  public Long getCustomerId() {
-    return customerId;
-  }
-
-  public void setCustomerId(Long customerId) {
-    this.customerId = customerId;
+  public Customer getCustomer() {
+    return customer;
   }
 
   @Override
@@ -114,11 +95,11 @@ public class Order {
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("id", id)
-        .append("orderItemsItemId", orderItemsItemId)
-        .append("customerId", customerId)
-        .append("createdOn", createdOn)
-        .append("updatedOn", updatedOn)
-        .toString();
+            .append("id", id)
+            .append("createdOn", createdOn)
+            .append("updatedOn", updatedOn)
+            .append("items", items)
+            .append("customer", customer)
+            .toString();
   }
 }

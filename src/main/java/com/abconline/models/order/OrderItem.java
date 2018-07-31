@@ -3,14 +3,10 @@ package com.abconline.models.order;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.abconline.models.basket.Basket;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -51,6 +47,14 @@ public class OrderItem {
   @Column(name = "date_of_purchase")
   @JsonFormat(shape = Shape.STRING, pattern = "dd-MM-yyyy")
   private LocalDate dateOfPurchase;
+
+  @JsonIgnore
+  @ManyToOne
+  private Order order;
+
+  @JsonIgnore
+  @ManyToOne
+  private Basket basket;
 
   public OrderItem() {
     //lets be at peace with Jackson :-)
