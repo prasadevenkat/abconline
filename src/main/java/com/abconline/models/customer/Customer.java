@@ -1,6 +1,7 @@
 package com.abconline.models.customer;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -8,11 +9,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.abconline.models.basket.Basket;
+import com.abconline.models.order.Order;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -43,6 +49,14 @@ public class Customer {
   @JsonFormat(shape = Shape.STRING, pattern = "dd-MM-yyyy")
   private LocalDate dateOfBirth;
 
+  @Column(name = "orders")
+  @OneToMany(mappedBy = "customer")
+  private List<Order> orders;
+
+  @JoinColumn(name = "basket")
+  @OneToOne(mappedBy = "customerBasket")
+  private Basket basket;
+
   public Customer() {}
 
   /**
@@ -60,72 +74,66 @@ public class Customer {
     this.dateOfBirth = dateOfBirth;
   }
 
-  public Long getId() {
-    return id;
+  public Customer(String firstName, String lastName, String emailAddress, LocalDate dateOfBirth, List<Order> orders) {
+    this(firstName, lastName, emailAddress, dateOfBirth);
+    this.orders = orders;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public Long getId() {
+    return id;
   }
 
   public String getFirstName() {
     return firstName;
   }
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
   public String getLastName() {
     return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  public LocalDate getDateOfBirth() {
-    return dateOfBirth;
-  }
-
-  public void setDateOfBirth(LocalDate dateOfBirth) {
-    this.dateOfBirth = dateOfBirth;
   }
 
   public String getEmailAddress() {
     return emailAddress;
   }
 
-  public void setEmailAddress(String emailAddress) {
-    this.emailAddress = emailAddress;
+  public LocalDate getDateOfBirth() {
+    return dateOfBirth;
+  }
+
+  public List<Order> getOrders() {
+    return orders;
+  }
+
+  public Basket getBasket() {
+    return basket;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
     Customer customer = (Customer) o;
-    return Objects.equals(id, customer.id);
+    return Objects.equals(id, customer.id) &&
+            Objects.equals(emailAddress, customer.emailAddress);
   }
 
   @Override
   public int hashCode() {
-
-    return Objects.hash(id);
+    return Objects.hash(id, emailAddress);
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("id", id)
-        .append("firstName", firstName)
-        .append("lastName", lastName)
-        .append("dateOfBirth", dateOfBirth)
-        .append("emailAddress", emailAddress)
-        .toString();
+            .append("id", id)
+            .append("firstName", firstName)
+            .append("lastName", lastName)
+            .append("emailAddress", emailAddress)
+            .append("dateOfBirth", dateOfBirth)
+            .append("orders", orders)
+            .toString();
   }
 }

@@ -1,10 +1,9 @@
 package com.abconline.models;
 
-import java.time.LocalDate;
-
+import com.abconline.models.customer.Customer;
 import org.junit.Test;
 
-import com.abconline.models.customer.Customer;
+import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -22,6 +21,6 @@ public class CustomerTest {
 
     // Then
     assertThat(toString, is(
-        "Customer[id=90,firstName=Oliver,lastName=Tester,dateOfBirth=1978-07-16,emailAddress=test@tester.com]"));
+        "Customer[id=90,firstName=Oliver,lastName=Tester,emailAddress=test@tester.com,dateOfBirth=1978-07-31,orders=<null>]"));
   }
 }

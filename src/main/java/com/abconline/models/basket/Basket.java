@@ -1,19 +1,28 @@
 package com.abconline.models.basket;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.util.CollectionUtils;
 
+import com.abconline.models.customer.Customer;
+import com.abconline.models.order.OrderItem;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -38,26 +47,33 @@ public class Basket {
   @JsonFormat(shape = Shape.STRING, pattern = "dd-MM-yyyy")
   private LocalDate updatedAt;
 
-  @Column(name = "customer_id")
-  private Long customerId;
+  @Column(name = "order_items")
+  @OneToMany(mappedBy = "basket")
+  private List<OrderItem> orderItems;
 
-  @Column(name = "order_items_item_id")
-  private Long orderItemsItemId;
+  @JsonIgnore
+  @OneToOne
+  private Customer customerBasket;
 
   public Basket() {}
 
-  public Basket(LocalDate createdAt, Long customerId, Long orderItemsItemId) {
+  public Basket(LocalDate createdAt, LocalDate updatedAt, List<OrderItem> orderItems) {
     this.createdAt = createdAt;
-    this.customerId = customerId;
-    this.orderItemsItemId = orderItemsItemId;
+    this.updatedAt = updatedAt;
+    this.orderItems = orderItems;
+  }
+
+  public Basket(LocalDate createdAt, LocalDate updatedAt, List<OrderItem> orderItems, Customer customer) {
+    this(createdAt, updatedAt, orderItems);
+    this.customerBasket = customer;
+  }
+
+  public Long getId() {
+    return id;
   }
 
   public LocalDate getCreatedAt() {
     return createdAt;
-  }
-
-  public void setCreatedAt(LocalDate createdAt) {
-    this.createdAt = createdAt;
   }
 
   public LocalDate getUpdatedAt() {
@@ -68,38 +84,49 @@ public class Basket {
     this.updatedAt = updatedAt;
   }
 
-  public Long getId() {
-    return id;
+  public List<OrderItem> getOrderItems() {
+    return orderItems;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public Customer getCustomerBasket() {
+    return customerBasket;
   }
 
-  public Long getCustomerId() {
-    return customerId;
+  public void addOrderItem(OrderItem item) {
+    if (CollectionUtils.isEmpty(this.orderItems)) {
+      this.orderItems = new ArrayList<>();
+    }
+
+    if (Objects.nonNull(item)) {
+      this.orderItems.add(item);
+    }
   }
 
-  public void setCustomerId(Long customerId) {
-    this.customerId = customerId;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Basket basket = (Basket) o;
+    return Objects.equals(id, basket.id) &&
+            Objects.equals(createdAt, basket.createdAt) &&
+            Objects.equals(updatedAt, basket.updatedAt) &&
+            Objects.equals(orderItems, basket.orderItems) &&
+            Objects.equals(customerBasket, basket.customerBasket);
   }
 
-  public Long getOrderItemsItemId() {
-    return orderItemsItemId;
-  }
-
-  public void setOrderItemsItemId(Long orderItemsItemId) {
-    this.orderItemsItemId = orderItemsItemId;
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, createdAt, updatedAt, orderItems, customerBasket);
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("id", id)
-        .append("createdAt", createdAt)
-        .append("updatedAt", updatedAt)
-        .append("customerId", customerId)
-        .append("orderItemsItemId", orderItemsItemId)
-        .toString();
+            .append("id", id)
+            .append("createdAt", createdAt)
+            .append("updatedAt", updatedAt)
+            .append("orderItems", orderItems)
+            .append("customerBasket", customerBasket)
+            .toString();
   }
 }
