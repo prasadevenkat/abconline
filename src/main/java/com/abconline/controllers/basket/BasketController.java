@@ -55,11 +55,11 @@ public class BasketController {
 
     Basket savedBasket;
 
-    if (Objects.nonNull(basket.getCustomerBasket())) {
+    if (Objects.nonNull(basket.getCustomer())) {
       savedBasket = basketDao.save(new Basket(basket.getCreatedAt(), basket.getUpdatedAt(), basket.getOrderItems()));
 
     } else {
-      savedBasket = basketDao.save(new Basket(basket.getCreatedAt(), basket.getUpdatedAt(), basket.getOrderItems(), basket.getCustomerBasket()));
+      savedBasket = basketDao.save(new Basket(basket.getCreatedAt(), basket.getUpdatedAt(), basket.getOrderItems(), basket.getCustomer()));
     }
 
     Map<String, String> responsePayload = new HashMap<>();
@@ -85,7 +85,7 @@ public class BasketController {
 
     Basket basketFound = basketDao.getOne(basketId);
 
-    if (Objects.nonNull(basketFound.getCustomerBasket()) && !(basketFound.getCustomerBasket().getId() == customerId)) {
+    if (Objects.nonNull(basketFound.getCustomer()) && !(basketFound.getCustomer().getId() == customerId)) {
       return new ResponseEntity<>(String.format("Basket with id %1$s does not match customer with id %2$s.",
           basketId, customerId), HttpStatus.UNAUTHORIZED);
     }

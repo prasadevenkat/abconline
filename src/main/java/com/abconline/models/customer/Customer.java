@@ -44,7 +44,7 @@ public class Customer {
   private List<Order> orders;
 
   @JoinColumn(name = "basket")
-  @OneToOne(mappedBy = "customerBasket")
+  @OneToOne(mappedBy = "customer")
   private Basket basket;
 
   public Customer() {}
