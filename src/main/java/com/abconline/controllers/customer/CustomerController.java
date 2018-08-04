@@ -1,37 +1,36 @@
 package com.abconline.controllers.customer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.abconline.daos.basket.BasketDao;
+import com.abconline.daos.customer.CustomerDao;
+import com.abconline.daos.order.OrderItemDao;
+import com.abconline.daos.order.OrdersDao;
+import com.abconline.models.customer.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
 
-import com.abconline.daos.customer.CustomerDao;
-import com.abconline.models.customer.Customer;
+import java.util.*;
 
-import static com.abconline.utils.AbcOnlineStrings.RESPONSE_MESSAGE_KEY;
-import static com.abconline.utils.AbcOnlineStrings.STATUS_KEY;
-import static com.abconline.utils.AbcOnlineStrings.SUCCESS_KEY;
+import static com.abconline.utils.AbcOnlineStrings.*;
 
 @RestController
 @RequestMapping(value = "/customers")
 public class CustomerController {
 
   private final CustomerDao customerDao;
+  private final OrderItemDao orderItemDao;
+  private final OrdersDao ordersDao;
+  private final BasketDao basketDao;
 
   @Autowired
-  public CustomerController(CustomerDao customerDao) {
+  public CustomerController(CustomerDao customerDao, OrderItemDao orderItemDao,
+                            OrdersDao ordersDao, BasketDao basketDao) {
     this.customerDao = customerDao;
+    this.orderItemDao = orderItemDao;
+    this.ordersDao = ordersDao;
+    this.basketDao = basketDao;
   }
 
   @GetMapping
@@ -47,8 +46,18 @@ public class CustomerController {
   @PostMapping
   public ResponseEntity<?> create(@RequestBody Customer customer) {
     if (customer != null) {
-      customerDao.save(customer);
-      return new ResponseEntity<>(HttpStatus.CREATED);
+
+      if (Objects.nonNull(customer.getBasket())) {
+        basketDao.save(customer.getBasket());
+      }
+
+      if (!CollectionUtils.isEmpty(customer.getOrders())) {
+        customer.getOrders().forEach(order -> orderItemDao.saveAll(order.getItems()));
+        ordersDao.saveAll(customer.getOrders());
+      }
+
+      Customer savedCustomer = customerDao.save(customer);
+      return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
 
     }
 
@@ -56,10 +65,10 @@ public class CustomerController {
         HttpStatus.BAD_REQUEST);
   }
 
-  @GetMapping(value = "/{id}")
-  public ResponseEntity<Customer> get(@PathVariable("id") long id) {
-    if (customerDao.findById(id).isPresent()) {
-      return new ResponseEntity<>(customerDao.getOne(id), HttpStatus.OK);
+  @GetMapping(value = "/{customerId}")
+  public ResponseEntity<Customer> get(@PathVariable("customerId") long customerId) {
+    if (customerDao.findById(customerId).isPresent()) {
+      return new ResponseEntity<>(customerDao.getOne(customerId), HttpStatus.OK);
     }
 
     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
