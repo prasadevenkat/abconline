@@ -1,9 +1,10 @@
 package com.abconline.models;
 
-import com.abconline.models.customer.Customer;
+import java.time.LocalDate;
+
 import org.junit.Test;
 
-import java.time.LocalDate;
+import com.abconline.models.customer.Customer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -13,7 +14,7 @@ public class CustomerTest {
   @Test
   public void shouldReturnToString() {
     // Given
-    final Customer customer = new Customer("Oliver", "Tester", "test@tester.com", LocalDate.now().minusYears(40));
+    final Customer customer = new Customer("Oliver", "Tester", "test@tester.com", LocalDate.of(2011, 11, 7));
     customer.setId(90L);
 
     // When
@@ -21,6 +22,6 @@ public class CustomerTest {
 
     // Then
     assertThat(toString, is(
-        "Customer[id=90,firstName=Oliver,lastName=Tester,emailAddress=test@tester.com,dateOfBirth=1978-07-31,orders=<null>]"));
+        "Customer[id=90,firstName=Oliver,lastName=Tester,emailAddress=test@tester.com,dateOfBirth=2011-11-07,orders=<null>]"));
   }
 }
