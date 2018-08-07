@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EntityScan("com.abconline.models.*")
-@EnableJpaRepositories("com.abconline.daos.*")
+@EnableJpaRepositories("com.abconline.repositories.*")
 public class AbconlineApplication {
 
 	public static void main(String[] args) {
