@@ -1,11 +1,11 @@
 package com.abconline.controllers;
 
 import com.abconline.AbconlineApplication;
-import com.abconline.daos.customer.CustomerDao;
 import com.abconline.models.basket.Basket;
 import com.abconline.models.customer.Customer;
 import com.abconline.models.order.Order;
 import com.abconline.models.order.OrderItem;
+import com.abconline.repositories.customer.CustomerRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +42,7 @@ public class CustomerControllerTest extends BaseControllerTest {
   private MockMvc mockMvc;
 
   @Autowired
-  private CustomerDao customerDao;
+  private CustomerRepository customerRepository;
 
   @Autowired
   private WebApplicationContext webApplicationContext;
@@ -51,9 +51,9 @@ public class CustomerControllerTest extends BaseControllerTest {
   public void setup() {
     this.mockMvc = webAppContextSetup(webApplicationContext).build();
 
-    this.customerDao.deleteAllInBatch();
+    this.customerRepository.deleteAllInBatch();
 
-    this.customer = customerDao.save(new Customer("Etimbuk", "Udofia", "etim@emailaddress.com", LocalDate.now().minusYears(25)));
+    this.customer = customerRepository.save(new Customer("Etimbuk", "Udofia", "etim@emailaddress.com", LocalDate.now().minusYears(25)));
   }
 
   @Test
