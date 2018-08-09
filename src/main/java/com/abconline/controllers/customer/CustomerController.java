@@ -1,10 +1,10 @@
 package com.abconline.controllers.customer;
 
-import com.abconline.daos.basket.BasketDao;
-import com.abconline.daos.customer.CustomerDao;
-import com.abconline.daos.order.OrderItemDao;
-import com.abconline.daos.order.OrdersDao;
 import com.abconline.models.customer.Customer;
+import com.abconline.repositories.basket.BasketRepository;
+import com.abconline.repositories.customer.CustomerRepository;
+import com.abconline.repositories.order.OrderItemRepository;
+import com.abconline.repositories.order.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,28 +19,28 @@ import static com.abconline.utils.AbcOnlineStrings.*;
 @RequestMapping(value = "/customers")
 public class CustomerController {
 
-  private final CustomerDao customerDao;
-  private final OrderItemDao orderItemDao;
-  private final OrdersDao ordersDao;
-  private final BasketDao basketDao;
+  private final CustomerRepository customerRepository;
+  private final OrderItemRepository orderItemRepository;
+  private final OrdersRepository ordersRepository;
+  private final BasketRepository basketRepository;
 
   @Autowired
-  public CustomerController(CustomerDao customerDao, OrderItemDao orderItemDao,
-                            OrdersDao ordersDao, BasketDao basketDao) {
-    this.customerDao = customerDao;
-    this.orderItemDao = orderItemDao;
-    this.ordersDao = ordersDao;
-    this.basketDao = basketDao;
+  public CustomerController(CustomerRepository customerRepository, OrderItemRepository orderItemRepository,
+                            OrdersRepository ordersRepository, BasketRepository basketRepository) {
+    this.customerRepository = customerRepository;
+    this.orderItemRepository = orderItemRepository;
+    this.ordersRepository = ordersRepository;
+    this.basketRepository = basketRepository;
   }
 
   @GetMapping
   public ResponseEntity<List<Customer>> list() {
 
-    if (customerDao.findAll().isEmpty()) {
+    if (customerRepository.findAll().isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    return new ResponseEntity<>(new ArrayList<>(customerDao.findAll()), HttpStatus.OK);
+    return new ResponseEntity<>(new ArrayList<>(customerRepository.findAll()), HttpStatus.OK);
   }
 
   @PostMapping
@@ -48,15 +48,15 @@ public class CustomerController {
     if (customer != null) {
 
       if (Objects.nonNull(customer.getBasket())) {
-        basketDao.save(customer.getBasket());
+        basketRepository.save(customer.getBasket());
       }
 
       if (!CollectionUtils.isEmpty(customer.getOrders())) {
-        customer.getOrders().forEach(order -> orderItemDao.saveAll(order.getItems()));
-        ordersDao.saveAll(customer.getOrders());
+        customer.getOrders().forEach(order -> orderItemRepository.saveAll(order.getItems()));
+        ordersRepository.saveAll(customer.getOrders());
       }
 
-      Customer savedCustomer = customerDao.save(customer);
+      Customer savedCustomer = customerRepository.save(customer);
       return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
 
     }
@@ -67,8 +67,8 @@ public class CustomerController {
 
   @GetMapping(value = "/{customerId}")
   public ResponseEntity<Customer> get(@PathVariable("customerId") long customerId) {
-    if (customerDao.findById(customerId).isPresent()) {
-      return new ResponseEntity<>(customerDao.getOne(customerId), HttpStatus.OK);
+    if (customerRepository.findById(customerId).isPresent()) {
+      return new ResponseEntity<>(customerRepository.getOne(customerId), HttpStatus.OK);
     }
 
     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -76,9 +76,9 @@ public class CustomerController {
 
   @DeleteMapping(value = "/{customerId}")
   public ResponseEntity<?> deleteCustomer(@PathVariable("customerId") long customerId) {
-    if (customerDao.existsById(customerId)) {
+    if (customerRepository.existsById(customerId)) {
       //now delete customer
-      customerDao.deleteById(customerId);
+      customerRepository.deleteById(customerId);
 
       Map<String, String> response = new HashMap<>();
       response.put(STATUS_KEY, SUCCESS_KEY);
