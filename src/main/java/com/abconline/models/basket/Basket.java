@@ -53,7 +53,7 @@ public class Basket {
 
   @JsonIgnore
   @OneToOne
-  private Customer customerBasket;
+  private Customer customer;
 
   public Basket() {}
 
@@ -65,7 +65,7 @@ public class Basket {
 
   public Basket(LocalDate createdAt, LocalDate updatedAt, List<OrderItem> orderItems, Customer customer) {
     this(createdAt, updatedAt, orderItems);
-    this.customerBasket = customer;
+    this.customer = customer;
   }
 
   public Long getId() {
@@ -88,8 +88,8 @@ public class Basket {
     return orderItems;
   }
 
-  public Customer getCustomerBasket() {
-    return customerBasket;
+  public Customer getCustomer() {
+    return customer;
   }
 
   public void addOrderItem(OrderItem item) {
@@ -111,12 +111,12 @@ public class Basket {
             Objects.equals(createdAt, basket.createdAt) &&
             Objects.equals(updatedAt, basket.updatedAt) &&
             Objects.equals(orderItems, basket.orderItems) &&
-            Objects.equals(customerBasket, basket.customerBasket);
+            Objects.equals(customer, basket.customer);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, createdAt, updatedAt, orderItems, customerBasket);
+    return Objects.hash(id, createdAt, updatedAt, orderItems, customer);
   }
 
   @Override
@@ -126,7 +126,7 @@ public class Basket {
             .append("createdAt", createdAt)
             .append("updatedAt", updatedAt)
             .append("orderItems", orderItems)
-            .append("customerBasket", customerBasket)
+            .append("customer", customer)
             .toString();
   }
 }
