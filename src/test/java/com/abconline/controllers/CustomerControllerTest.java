@@ -59,7 +59,7 @@ public class CustomerControllerTest extends BaseControllerTest {
   @Test
   public void shouldCreateValidCustomerAndReturn201Status() throws Exception {
     Customer customer = new Customer("Oliver", "Tester", "test@tester.com", LocalDate.now().minusYears(40));
-
+	//this is for testing
     mockMvc.perform(post("/customers")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json(customer)))
